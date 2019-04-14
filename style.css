@@ -1,0 +1,27 @@
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; position: relative; }
+
+body { padding-top: 5vh; }
+
+.center, .puzzle, .misc { left: 0; right: 0; margin-left: auto; margin-right: auto; }
+
+.header { text-align: center; font-size: 30px; }
+
+.puzzle { width: 100%; padding: 5px; max-width: 320px; }
+
+.puzzle_container { width: 100%; padding-top: 100%; background-color: #082258; }
+
+.puzzle_blank { position: absolute; width: 25%; padding-top: 25%; }
+
+.puzzle_pannel { position: absolute; width: 25%; padding-top: 25%; cursor: pointer; }
+
+.puzzle_pannel.origin { background-color: rgba(255, 255, 255, 0.4); }
+
+.puzzle_pannel::before { content: ""; width: calc(100% - 10px); height: calc(100% - 10px); position: absolute; top: 5px; left: 5px; border: 2px solid #FFF; border-radius: 10px; }
+
+.puzzle_num { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; font-size: 34px; color: #FFF; font-family: 'Times New Roman', Times, serif; }
+
+.shuffled .puzzle_pannel { transition: top 0.3s, left 0.3s; }
+
+.misc { width: 100%; padding: 10px; max-width: 320px; text-align: center; }
+
+.reset, .shuffle { display: inline-block; width: 8em; padding: 1em 0; cursor: pointer; margin-bottom: 1em; }
