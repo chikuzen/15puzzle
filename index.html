@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>15パズル</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>15パズル</title>
+<meta name='description' content='きわめて一般的な15パズル。'>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-138165866-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-138165866-1');
+</script>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <header class="header">15パズル</header>
@@ -27,7 +37,7 @@
   let moveNum;
   const moveNumSpan = d.querySelector(".move_num");
 
-  function action(p) {
+  const action = function(p) {
     const x = parseInt(p.dataset.x);
     const y = parseInt(p.dataset.y);
     const current = x + 4 * y;
@@ -64,9 +74,9 @@
       return true;
     }
     return false;
-  }
+  };
 
-  function shuffle(times) {
+  const shuffle = function(times) {
     container.classList.remove("shuffled");
     while (times-- > 0) {
       const offset = [-4, 4, -1, 1];
@@ -87,9 +97,9 @@
     }
     container.classList.add("shuffled");
     checkFinish();
-  }
+  };
 
-  function checkFinish() {
+  const checkFinish = function() {
     let origin = 0;
     for (let i = 0; i < 16; ++i) {
       const p = pannels[i];
@@ -108,9 +118,9 @@
       moveNumSpan.textContent = "0";
       shuffle(100);
     }
-  }
+  };
 
-  function createPannel(x, y) {
+  const createPannel = function(x, y) {
     const num = y * 4 + x + 1;
     if (num > 15) {
       return null;
@@ -141,7 +151,7 @@
     return ret;
   }
 
-  function init() {
+  const init = function() {
     container = d.createElement("div");
     container.classList.add("puzzle_container");
     for (let y = 0; y < 4; ++y) {
@@ -153,16 +163,16 @@
     container.classList.add("shuffled");
     moveNum = 0;
     moveNumSpan.textContent = String(moveNum);
-  }
+  };
 
-  function reset() {
+  const reset = function() {
     while (pannels.length > 0) {
       pannels.pop();
     }
     d.querySelector(".puzzle").removeChild(container);
     container = null;
     init();
-  }
+  };
 
   init();
   d.querySelector(".reset").addEventListener("click", reset);
