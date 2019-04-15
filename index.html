@@ -38,15 +38,13 @@
   const moveNumSpan = d.querySelector(".move_num");
 
   const action = function(p) {
-    const x = parseInt(p.dataset.x);
-    const y = parseInt(p.dataset.y);
-    const current = x + 4 * y;
+    const current = pannels.indexOf(p);
 
     const above = current - 4;
     if (pannels[above] === null) {
       pannels[above] = p;
       pannels[current] = null;
-      p.slide(x, y - 1);
+      p.slide(above);
       return true;
     }
 
@@ -54,23 +52,24 @@
     if (pannels[bellow] === null) {
       pannels[bellow] = p;
       pannels[current] = null;
-      p.slide(x, y + 1);
+      p.slide(bellow);
       return true;
     }
 
-    const left = current - (x > 0 ? 1 : 0);
-    if (pannels[left] === null) {
+    const x = current % 4;
+    const left = current - 1;
+    if (x !== 0 && pannels[left] === null) {
       pannels[left] = p;
       pannels[current] = null;
-      p.slide(x - 1, y);
+      p.slide(left);
       return true;
     }
 
-    const right = current + (x > 2 ? 0 : 1);
-    if (pannels[right] === null) {
+    const right = current + 1;
+    if (x !== 3 && pannels[right] === null) {
       pannels[right] = p;
       pannels[current] = null;
-      p.slide(x + 1, y);
+      p.slide(right);
       return true;
     }
     return false;
@@ -119,49 +118,44 @@
     }
   };
 
-  const createPannel = function(x, y) {
-    const num = y * 4 + x + 1;
-    if (num > 15) {
+  const createPannel = function(num) {
+    if (num > 14) {
       return null;
     }
     const ret = d.createElement("div");
-    ret.dataset.idx = num - 1;
-    ret.slide = function(dx, dy) {
-      this.style.left = dx * 25 + "%";
-      this.style.top = dy * 25 + "%";
-      this.dataset.x = dx;
-      this.dataset.y = dy;
+    ret.dataset.idx = num;
+    ret.slide = function(idx) {
+      this.style.left = (idx % 4) * 25 + "%";
+      this.style.top = (idx / 4 | 0) * 25 + "%";
     }
-    ret.slide(x, y);
+    ret.slide(num);
     ret.classList.add("puzzle_pannel");
     ret.addEventListener("click", function() {
       if (action(this)) {
         moveNumSpan.textContent = String(++moveNum);
-        checkFinish();
+        setTimeout(checkFinish, 400);
       };
     });
 
     const span = d.createElement("span");
     span.classList.add("puzzle_num");
-    span.textContent = String(num);
+    span.textContent = String(num + 1);
     ret.appendChild(span);
 
     container.appendChild(ret);
     return ret;
-  }
+  };
 
   const init = function() {
     container = d.createElement("div");
     container.classList.add("puzzle_container");
-    for (let y = 0; y < 4; ++y) {
-      for (let x = 0; x < 4; ++x) {
-        pannels.push(createPannel(x, y));
-      }
+    for (let i = 0; i < 16; ++i) {
+      pannels.push(createPannel(i));
     }
     d.querySelector(".puzzle").appendChild(container);
     container.classList.add("shuffled");
     moveNum = 0;
-    moveNumSpan.textContent = String(moveNum);
+    moveNumSpan.textContent = "0";
   };
 
   const reset = function() {
