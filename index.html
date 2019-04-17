@@ -39,37 +39,32 @@
 
   const action = function(p) {
     const current = pannels.indexOf(p);
+    const swap = function(next) {
+      if (pannels[next] === null) {
+        pannels[next] = p;
+        pannels[current] = null;
+        p.slide(next);
+        return true;
+      }
+      return false;
+    };
 
-    const above = current - 4;
-    if (pannels[above] === null) {
-      pannels[above] = p;
-      pannels[current] = null;
-      p.slide(above);
+    if (swap(current - 4)) {
       return true;
     }
 
-    const bellow = current + 4;
-    if (pannels[bellow] === null) {
-      pannels[bellow] = p;
-      pannels[current] = null;
-      p.slide(bellow);
+    if (swap(current + 4)) {
       return true;
     }
 
     const x = current % 4;
-    const left = current - 1;
-    if (x !== 0 && pannels[left] === null) {
-      pannels[left] = p;
-      pannels[current] = null;
-      p.slide(left);
+    if (x !== 0 && swap(current - 1)) {
+      ;
       return true;
     }
 
     const right = current + 1;
-    if (x !== 3 && pannels[right] === null) {
-      pannels[right] = p;
-      pannels[current] = null;
-      p.slide(right);
+    if (x !== 3 && swap(current + 1)) {
       return true;
     }
     return false;
@@ -77,22 +72,13 @@
 
   const shuffle = function(times) {
     container.classList.remove("shuffled");
+    const offset = [-4, 4, -1, 1];
     while (times-- > 0) {
-      const offset = [-4, 4, -1, 1];
       const blank = pannels.indexOf(null);
-      if (blank < 4) {
-        offset[0] = 4;
+      const target = pannels[blank + offset[Math.random() * 4 | 0]];
+      if (target) {
+        action(target);
       }
-      if (blank > 11) {
-        offset[1] = -4;
-      }
-      if (blank % 4 === 0) {
-        offset[2] = 1;
-      }
-      if (blank % 4 === 3) {
-        offset[3] = -1;
-      }
-      action(pannels[blank + offset[Math.random() * 4 | 0]]);
     }
     container.classList.add("shuffled");
     checkFinish();
@@ -110,12 +96,7 @@
         p.classList.remove("origin");
       }
     }
-    if (origin < 15) return;
-    if (confirm("クリアです！ もう一度やりますか？")) {
-      moveNum = 0;
-      moveNumSpan.textContent = "0";
-      shuffle(100);
-    }
+    return origin === 15;
   };
 
   const createPannel = function(num) {
@@ -133,7 +114,13 @@
     ret.addEventListener("click", function() {
       if (action(this)) {
         moveNumSpan.textContent = String(++moveNum);
-        setTimeout(checkFinish, 400);
+        setTimeout(function(){
+          if (checkFinish() && confirm("クリアです！ もう一度やりますか？")) {
+            moveNum = 0;
+            moveNumSpan.textContent = "0";
+            shuffle(1000);
+          }
+        }, 400);
       };
     });
 
@@ -141,7 +128,6 @@
     span.classList.add("puzzle_num");
     span.textContent = String(num + 1);
     ret.appendChild(span);
-
     container.appendChild(ret);
     return ret;
   };
@@ -156,21 +142,27 @@
     container.classList.add("shuffled");
     moveNum = 0;
     moveNumSpan.textContent = "0";
+    checkFinish();
   };
 
   const reset = function() {
-    while (pannels.length > 0) {
-      pannels.pop();
+    pannels.sort(function(a, b) {
+      const ax = a === null ? 16 : parseInt(a.dataset.idx);
+      const bx = b === null ? 16 : parseInt(b.dataset.idx);
+      return ax < bx ? -1 : 1;
+    });
+    for (let i = 0; i < 15; ++i) {
+      pannels[i].slide(i);
     }
-    d.querySelector(".puzzle").removeChild(container);
-    container = null;
-    init();
+    moveNum = 0;
+    moveNumSpan.textContent = "0";
+    checkFinish();
   };
 
   init();
   d.querySelector(".reset").addEventListener("click", reset);
   d.querySelector(".shuffle").addEventListener("click", function(){
-    shuffle(100);
+    shuffle(1000);
   });
 })(document);
 </script>
