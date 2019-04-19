@@ -43,6 +43,7 @@ body {
         width: 25%;
         padding-top: 25%;
         cursor: pointer;
+        transition: top 0.3s, left 0.3s;
         &.origin {
             background-color: rgba( 255, 255, 255, 0.4);
         }
@@ -70,10 +71,6 @@ body {
         color: #FFF;
         font-family: 'Times New Roman', Times, serif;
     }
-}
-
-.shuffled .puzzle_pannel {
-    transition: top 0.3s, left 0.3s;
 }
 
 .misc {

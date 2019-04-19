@@ -21,11 +21,29 @@
 
 <header class="header">15パズル</header>
 <main class="main">
-  <div class="puzzle"></div>
+  <div class="puzzle">
+    <div class="puzzle_container">
+      <div class="puzzle_pannel"><span class="puzzle_num">1</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">2</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">3</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">4</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">5</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">6</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">7</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">8</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">9</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">10</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">11</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">12</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">13</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">14</span></div>
+      <div class="puzzle_pannel"><span class="puzzle_num">15</span></div>
+    </div>
+  </div>
   <div class="misc">
     <button class="reset" type="button">RESET</button>
     <button class="shuffle" type="button">SHUFFLE</button>
-    <div class="move">move:<span class="move_num"></span></div>
+    <div class="move">moves:<span class="move_counts"></span></div>
   </div>
 </main>
 
@@ -33,137 +51,91 @@
 (function(d){
   "use strict";
   const pannels = [];
-  let container = null;
-  let moveNum;
-  const moveNumSpan = d.querySelector(".move_num");
+  let count = 0;
+  const countSpan = d.querySelector(".move_counts");
+
+  const swap = function(current, next) {
+    if (pannels[next] !== null) return false;
+    pannels[next] = pannels[current];
+    pannels[current] = null;
+    pannels[next].slide(next);
+    return true;
+  };
 
   const action = function(p) {
     const current = pannels.indexOf(p);
-    const swap = function(next) {
-      if (pannels[next] === null) {
-        pannels[next] = p;
-        pannels[current] = null;
-        p.slide(next);
-        return true;
-      }
-      return false;
-    };
-
-    if (swap(current - 4)) {
-      return true;
-    }
-
-    if (swap(current + 4)) {
-      return true;
-    }
-
     const x = current % 4;
-    if (x !== 0 && swap(current - 1)) {
-      ;
-      return true;
-    }
-
-    const right = current + 1;
-    if (x !== 3 && swap(current + 1)) {
-      return true;
-    }
-    return false;
+    return  swap(current, current - 4)
+      || swap(current, current + 4)
+      || x !== 0 && swap(current, current - 1)
+      || x !== 3 && swap(current, current + 1);
   };
 
-  const shuffle = function(times) {
-    container.classList.remove("shuffled");
+  const shuffle = function() {
     const offset = [-4, 4, -1, 1];
-    while (times-- > 0) {
+    for (let times = 0; times < 500; ++times) {
       const blank = pannels.indexOf(null);
       const target = pannels[blank + offset[Math.random() * 4 | 0]];
       if (target) {
         action(target);
       }
     }
-    container.classList.add("shuffled");
     checkFinish();
   };
 
   const checkFinish = function() {
     let origin = 0;
-    for (let i = 0; i < 16; ++i) {
-      const p = pannels[i];
-      if (p === null) continue;
-      if (p.dataset.idx === String(i)) {
-        ++origin;
-        p.classList.add("origin");
-      } else {
-        p.classList.remove("origin");
+    pannels.forEach(function(p, i){
+      if (p !== null) {
+        if (parseInt(p.dataset.idx) === i) {
+          ++origin;
+          p.classList.add("origin");
+        } else {
+          p.classList.remove("origin");
+        }
       }
-    }
-    return origin === 15;
-  };
-
-  const createPannel = function(num) {
-    if (num > 14) {
-      return null;
-    }
-    const ret = d.createElement("div");
-    ret.dataset.idx = num;
-    ret.slide = function(idx) {
-      this.style.left = (idx % 4) * 25 + "%";
-      this.style.top = (idx / 4 | 0) * 25 + "%";
-    }
-    ret.slide(num);
-    ret.classList.add("puzzle_pannel");
-    ret.addEventListener("click", function() {
-      if (action(this)) {
-        moveNumSpan.textContent = String(++moveNum);
-        setTimeout(function(){
-          if (checkFinish() && confirm("クリアです！ もう一度やりますか？")) {
-            moveNum = 0;
-            moveNumSpan.textContent = "0";
-            shuffle(1000);
-          }
-        }, 400);
-      };
     });
-
-    const span = d.createElement("span");
-    span.classList.add("puzzle_num");
-    span.textContent = String(num + 1);
-    ret.appendChild(span);
-    container.appendChild(ret);
-    return ret;
-  };
-
-  const init = function() {
-    container = d.createElement("div");
-    container.classList.add("puzzle_container");
-    for (let i = 0; i < 16; ++i) {
-      pannels.push(createPannel(i));
-    }
-    d.querySelector(".puzzle").appendChild(container);
-    container.classList.add("shuffled");
-    moveNum = 0;
-    moveNumSpan.textContent = "0";
-    checkFinish();
+    return origin === 15;
   };
 
   const reset = function() {
     pannels.sort(function(a, b) {
-      const ax = a === null ? 16 : parseInt(a.dataset.idx);
-      const bx = b === null ? 16 : parseInt(b.dataset.idx);
-      return ax < bx ? -1 : 1;
+      return (a ? a.dataset.idx : 16) - (b ? b.dataset.idx : 16);
     });
     for (let i = 0; i < 15; ++i) {
       pannels[i].slide(i);
     }
-    moveNum = 0;
-    moveNumSpan.textContent = "0";
+    count = 0;
+    countSpan.textContent = "0";
     checkFinish();
   };
 
-  init();
-  d.querySelector(".reset").addEventListener("click", reset);
-  d.querySelector(".shuffle").addEventListener("click", function(){
-    shuffle(1000);
+  Array.prototype.forEach.call(d.getElementsByClassName("puzzle_pannel"), function(p, i){
+    p.dataset.idx = i;
+    p.slide = function(idx) {
+      this.style.left = (idx % 4) * 25 + "%";
+      this.style.top = (idx / 4 | 0) * 25 + "%";
+    }
+    p.addEventListener("click", function(){
+      if (action(this)) {
+        countSpan.textContent = String(++count);
+        if (checkFinish()) {
+          setTimeout(function(){
+            if (confirm("クリアです！ もう一度やりますか？")) {
+              count = 0;
+              countSpan.textContent = "0";
+              shuffle();
+            }
+          }, 400);
+        }
+      }
+    });
+    pannels.push(p);
   });
+  pannels.push(null);
+  reset();
+  d.querySelector(".reset").addEventListener("click", reset);
+  d.querySelector(".shuffle").addEventListener("click", shuffle);
 })(document);
 </script>
 </body>
